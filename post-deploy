@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+if [[ -f "$PLUGIN_AVAILABLE_PATH/proxy/functions" ]]; then
+  source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+fi
+
+if declare -f get_app_proxy_type > /dev/null; then
+  if [[ "$(get_app_proxy_type "$1")" != "haproxy" ]]; then
+    return
+  fi
+fi
 
 # get app
 APP="$1"
 
 # check if there is a PORTS file
-if [ -f $DOKKU_ROOT/$APP/PORTS ]; then
+if [[ -f $DOKKU_ROOT/$APP/PORTS ]]; then
   # log
   echo "-----> Generating new haproxy configuration"
 
   # create config
-  /var/lib/dokku/plugins/available/haproxy/create-config $APP
+  "$PLUGIN_AVAILABLE_PATH/haproxy/create-config" $APP
 
   # concatenate configs
   cat /var/lib/dokku-haproxy/_* > /var/lib/dokku-haproxy/haproxy.cfg
