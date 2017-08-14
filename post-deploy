@@ -7,6 +7,7 @@ fi
 if declare -f get_app_proxy_type > /dev/null; then
   if [[ "$(get_app_proxy_type "$1")" != "haproxy" ]]; then
     # return
+    echo "test..."
   fi
 fi
 
